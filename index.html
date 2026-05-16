@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satu Hal Kecil — Untuk Kamu</title>
+    <title>Satu Hal Kecil — Khusus Untukmu</title>
     
     <!-- SEO -->
     <meta name="description" content="Sebuah ruang kecil untuk tenang dan tersenyum. Dibuat khusus untuk kamu.">
@@ -22,111 +22,142 @@
 <body>
     <div id="particles-js"></div>
     
-    <!-- Smooth Scroll Container -->
-    <main data-lenis-prevent>
-        
-        <!-- Opening Scene -->
-        <section id="opening" class="scene">
+    <!-- 1. Name Input Overlay -->
+    <div id="name-overlay" class="overlay">
+        <div class="glass name-card">
+            <h2 class="heading">Hai...</h2>
+            <p>Boleh aku tahu siapa namamu?</p>
+            <input type="text" id="user-name-input" placeholder="Nama panggilanamu..." maxlength="15" autocomplete="off">
+            <button id="submit-name" class="btn-primary" style="justify-content: center; width: 100%;">
+                <span>Mulai Sekarang</span>
+                <i data-lucide="arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <main>
+        <!-- 2. Opening Scene -->
+        <section id="opening" class="scene hidden">
             <div class="content">
                 <div class="opening-text">
-                    <p class="reveal-text">Ada satu hal kecil...</p>
-                    <p class="reveal-text">yang ingin aku tunjukkan padamu.</p>
+                    <p class="reveal-text caveat">Sebenarnya...</p>
+                    <p class="reveal-text heading">Ada satu hal kecil yang ingin aku tunjukkan buat <span class="user-name-display romantic-pink">kamu</span>.</p>
                 </div>
-                <button id="start-btn" class="glass-btn">
-                    <span>Lihat pelan-pelan ya</span>
-                    <i data-lucide="sparkles" class="icon"></i>
+                <button id="start-btn" class="btn-primary bloom" style="margin: 0 auto;">
+                    <span>Lihat sebentar ya</span>
+                    <i data-lucide="sparkles"></i>
                 </button>
             </div>
         </section>
 
-        <!-- Playground Section -->
+        <!-- 3. Playground Section -->
         <section id="playground" class="scene hidden">
             <div class="floating-container">
-                <div class="floating-message" style="--d: 0s">Dunia kadang terlalu bising...</div>
-                <div class="floating-message" style="--d: 2.5s">Tapi di sini, semuanya tenang.</div>
-                <div class="floating-message" style="--d: 5s">Kamu sudah berusaha hebat hari ini.</div>
+                <div class="glass floating-message" style="--d: 0s">Dunia kadang berisik banget ya...</div>
+                <div class="glass floating-message" style="--d: 2.5s">Tapi di sini, kamu bisa tenang sebentar.</div>
+                <div class="glass floating-message" style="--d: 5s">Makasih ya sudah berjuang hari ini.</div>
             </div>
             
             <div class="interaction-hint">
-                <p>Gerakkan jarimu, biarkan cahaya mengikuti...</p>
+                <p class="caveat" style="font-size: 1.5rem;">Gerakkan jarimu, biarkan cahaya mengikuti...</p>
                 <span class="next-step-hint">(Klik di mana saja untuk lanjut)</span>
             </div>
         </section>
 
-        <!-- Chat & Compliment Section -->
+        <!-- 4. Chat & Compliment Section -->
         <section id="chat" class="scene hidden">
             <div class="chat-container glass">
                 <div class="chat-header">
                     <div class="status-dot"></div>
-                    <span>Menuliskan sesuatu untukmu...</span>
+                    <span style="opacity: 0.7;">Sedang menuliskan pesan...</span>
                 </div>
                 <div id="chat-messages" class="chat-messages">
-                    <!-- Messages will appear here -->
+                    <!-- Messages Injected Here -->
                 </div>
-                <div class="chat-input-area">
-                    <button id="compliment-btn" class="glass-btn small">
+                <div class="chat-input-area" style="padding-top: 1.5rem; display: flex; justify-content: center;">
+                    <button id="compliment-btn" class="btn-primary small pulse-glow">
                         <span>Lagi?</span>
-                        <i data-lucide="feather" class="icon"></i>
+                        <i data-lucide="feather"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Secret Area -->
+        <!-- 5. Secret Area -->
         <section id="secret" class="scene hidden">
-            <div class="secret-box glass" id="magic-box">
-                <i data-lucide="moon" class="box-icon"></i>
-                <p>Ketuk perlahan...</p>
+            <div id="secret-content" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                <div class="secret-box glass" id="magic-box">
+                    <i data-lucide="moon" class="box-icon"></i>
+                    <p class="heading" style="font-size: 1.2rem;">Ketuk perlahan di sini...</p>
+                </div>
+                <button id="to-final-btn" class="btn-primary hidden pulse-glow">
+                    <span>Lihat Pesan Terakhir</span>
+                    <i data-lucide="heart"></i>
+                </button>
             </div>
         </section>
 
-        <!-- Final Scene -->
+        <!-- 6. Final Scene -->
         <section id="final" class="scene hidden">
-            <div class="content">
-                <h2 class="playfair">Terima kasih sudah mampir.</h2>
-                <p class="caveat">Semoga ini cukup untuk membuat harimu sedikit lebih cerah.</p>
+            <div class="content final-content">
+                <div class="final-header">
+                    <h2 class="heading">Terima kasih, <span class="user-name-display romantic-pink">kamu</span>.</h2>
+                    <p class="caveat" style="opacity: 0.8;">Semoga harimu sedikit lebih cerah.</p>
+                </div>
                 
-                <!-- Pull-up Card -->
-                <div class="reveal-container">
-                    <div class="envelope">
-                        <div class="card" id="pull-card">
-                            <div class="card-content">
-                                <h3 class="playfair bloom">I LOVE YOU</h3>
-                                <p class="caveat">Always.</p>
+                <div class="final-container">
+                    <div class="envelope-wrapper" id="envelope-trigger">
+                        <!-- Envelope Back -->
+                        <div class="envelope-back glass"></div>
+                        
+                        <!-- Secret Card -->
+                        <div class="card glass" id="pull-card">
+                            <div class="card-inner">
+                                <h3 class="heading bloom">I LOVE YOU</h3>
+                                <p class="caveat" style="color: white; opacity: 0.8; font-size: 1.3rem;">Always.</p>
                             </div>
                         </div>
-                        <div class="envelope-front">
+                        
+                        <!-- Envelope Top Flap (Animated) -->
+                        <div class="envelope-top">
+                            <div class="flap-shape"></div>
+                        </div>
+
+                        <!-- Envelope Bottom/Front -->
+                        <div class="envelope-bottom glass">
+                            <div class="envelope-seal">
+                                <i data-lucide="heart" fill="var(--romantic-pink)" color="var(--romantic-pink)"></i>
+                            </div>
                             <div class="pull-hint">
                                 <i data-lucide="chevron-up"></i>
-                                <span>Klik atau Tarik Kartunya ke Atas</span>
+                                <span>Buka Suratnya</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="final-heart">
-                    <i data-lucide="heart" fill="currentColor"></i>
+                <div class="final-footer">
+                    <div class="heart-icon">❤️</div>
+                    <p class="footer-note">Hati-hati di jalan ya.</p>
+                    <div id="one-last-secret" class="hidden caveat" style="color: var(--accent-glow); margin-top: 1rem;">
+                        Istirahat yang cukup ya malam ini.
+                    </div>
                 </div>
-                <p class="footer-note">Kamu berharga, lebih dari yang kamu tahu.</p>
             </div>
         </section>
-
     </main>
 
     <!-- Audio Control -->
     <div class="audio-control glass">
-        <button id="mute-btn" aria-label="Toggle Mute">
+        <button id="mute-btn" style="background: none; border: none; color: white; cursor: pointer; padding: 10px;">
             <i data-lucide="music" id="mute-icon"></i>
         </button>
     </div>
 
-    <!-- Libraries -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
-    
-    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html>

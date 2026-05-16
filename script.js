@@ -1,391 +1,358 @@
 // Initialize Lucide Icons
 lucide.createIcons();
 
-// Initialize Lenis Smooth Scroll
-const lenis = new Lenis({
-    duration: 1.5,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    orientation: 'vertical',
-    gestureOrientation: 'vertical',
-    smoothWheel: true,
-    wheelMultiplier: 1,
-    smoothTouch: false,
-    touchMultiplier: 2,
-    infinite: false,
-});
+// GSAP Optimization
+gsap.config({ force3D: true });
 
-function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-}
+// Global State
+let userName = "Kamu";
+let audio;
+let isMuted = false;
+let currentSceneIndex = 0;
+
+// Element References
+const scenes = ['opening', 'playground', 'chat', 'secret', 'final'].map(id => document.getElementById(id));
+const messagesContainer = document.getElementById('chat-messages');
+const complimentBtn = document.getElementById('compliment-btn');
+const playground = document.getElementById('playground');
+
+// 1. Smooth Scroll (Lenis)
+const lenis = new Lenis({ duration: 1.2 });
+function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
 requestAnimationFrame(raf);
 
-// Particles Configuration
+// 2. Background Particles
 tsParticles.load("particles-js", {
     particles: {
-        number: { value: 60, density: { enable: true, value_area: 800 } },
-        color: { value: ["#ffe5ec", "#e2d1f9", "#d0ebff", "#fff9f0"] },
+        number: { value: window.innerWidth < 768 ? 25 : 50, density: { enable: true, value_area: 1000 } },
+        color: { value: ["#38bdf8", "#f472b6", "#e2e8f0"] },
         shape: { type: "circle" },
-        opacity: {
-            value: 0.4,
-            random: true,
-            anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false }
-        },
-        size: {
-            value: 2,
-            random: true,
-            anim: { enable: false, speed: 40, size_min: 0.1, sync: false }
-        },
-        move: {
-            enable: true,
-            speed: 0.8,
-            direction: "none",
-            random: true,
-            straight: false,
-            out_mode: "out",
-            bounce: false,
-            attract: { enable: false, rotateX: 600, rotateY: 1200 }
-        }
+        opacity: { value: 0.3, random: true },
+        size: { value: 1.5, random: true },
+        move: { enable: true, speed: 0.4, direction: "none", random: true, out_mode: "out" }
     },
-    interactivity: {
-        detect_on: "canvas",
-        events: {
-            onhover: { enable: true, mode: "bubble" },
-            onclick: { enable: true, mode: "push" },
-            resize: true
-        },
-        modes: {
-            bubble: { distance: 250, size: 4, duration: 2, opacity: 0.6, speed: 3 },
-            push: { particles_nb: 3 }
-        }
-    },
+    interactivity: { events: { resize: true } },
     retina_detect: true
 });
 
-// GSAP Animations
-const tl = gsap.timeline();
+// 3. Name Interaction Logic
+const nameOverlay = document.getElementById('name-overlay');
+const nameInput = document.getElementById('user-name-input');
+const nameDisplays = document.querySelectorAll('.user-name-display');
 
-// Initial Reveal
-window.addEventListener('load', () => {
-    tl.to(".reveal-text", {
+document.getElementById('submit-name').addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    if (btn.disabled) return;
+    btn.disabled = true;
+
+    const val = nameInput.value.trim();
+    if (val) {
+        userName = val;
+        nameDisplays.forEach(el => el.textContent = userName);
+    }
+    
+    // Cross-fade to opening scene
+    scenes[0].classList.remove('hidden');
+    gsap.set(scenes[0], { opacity: 0 });
+    gsap.set(["#opening .reveal-text", "#start-btn"], { opacity: 0 });
+
+    gsap.to(nameOverlay, {
+        opacity: 0,
+        scale: 1.05,
+        duration: 1,
+        ease: "power2.inOut",
+        onComplete: () => {
+            nameOverlay.style.display = 'none';
+        }
+    });
+
+    gsap.to(scenes[0], {
         opacity: 1,
-        y: 0,
-        duration: 2,
-        stagger: 1,
-        ease: "power3.out"
-    }).to("#start-btn", {
-        opacity: 1,
-        y: 0,
-        duration: 1.5,
-        ease: "back.out(1.7)"
-    }, "-=0.8");
+        duration: 0.8,
+        delay: 0.2,
+        onComplete: startOpeningScene
+    });
+    
+    initAudio();
+    playSFX('click');
 });
 
-// Main Navigation & Flow
-const startBtn = document.getElementById('start-btn');
-const opening = document.getElementById('opening');
-const playground = document.getElementById('playground');
-const chat = document.getElementById('chat');
-const secret = document.getElementById('secret');
-const final = document.getElementById('final');
+function startOpeningScene() {
+    gsap.fromTo("#opening .reveal-text", 
+        { opacity: 0, y: 40 }, 
+        { opacity: 1, y: 0, duration: 1.5, stagger: 0.8, ease: "power3.out" }
+    );
+    gsap.fromTo("#start-btn", 
+        { opacity: 0, scale: 0.9 }, 
+        { opacity: 1, scale: 1, duration: 1.2, delay: 2.2, ease: "back.out(1.7)" }
+    );
+}
 
-const scenes = [opening, playground, chat, secret, final];
-let currentSceneIndex = 0;
+// 4. Scene Navigation
+const themeColors = ['#05070a', '#0f172a', '#1e1b4b', '#1e1b4b', '#2d1b33'];
+let isTransitioning = false;
 
 function showNextScene() {
+    if (isTransitioning || currentSceneIndex >= scenes.length - 1) return;
+    isTransitioning = true;
+
     const currentScene = scenes[currentSceneIndex];
     const nextScene = scenes[currentSceneIndex + 1];
 
     if (nextScene) {
         gsap.to(currentScene, {
             opacity: 0,
-            y: -20,
-            duration: 1.5,
+            y: -30,
+            duration: 1.2,
             ease: "power2.inOut",
             onComplete: () => {
                 currentScene.classList.add('hidden');
                 nextScene.classList.remove('hidden');
-                gsap.fromTo(nextScene, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1.5, ease: "power2.out" });
-                currentSceneIndex++;
+                gsap.fromTo(nextScene, { opacity: 0, y: 30 }, { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 1.2, 
+                    ease: "power2.out",
+                    onComplete: () => {
+                        isTransitioning = false;
+                    }
+                });
                 
-                if (nextScene.id === 'chat') {
-                    startChat();
-                }
-                if (nextScene.id === 'final') {
-                    initFinalReveal();
-                }
+                currentSceneIndex++;
+                document.body.style.backgroundColor = themeColors[currentSceneIndex];
+                
+                if (nextScene.id === 'chat') startChat();
+                if (nextScene.id === 'final') initFinalReveal();
             }
         });
     }
 }
 
-startBtn.addEventListener('click', () => {
-    showNextScene();
-    initAudio(); 
-});
+document.getElementById('start-btn').addEventListener('click', () => { playSFX('click'); showNextScene(); });
 
-// Mouse Follower Sparkles
-playground.addEventListener('mousemove', (e) => {
+// 5. Playground Interaction (Sparkles)
+function spawnSparkle(x, y) {
     const sparkle = document.createElement('div');
     sparkle.className = 'sparkle';
-    sparkle.style.left = e.pageX + 'px';
-    sparkle.style.top = e.pageY + 'px';
-    
-    const size = Math.random() * 8 + 4;
-    sparkle.style.width = size + 'px';
-    sparkle.style.height = size + 'px';
-    
-    const colors = ['#ffe5ec', '#e2d1f9', '#d0ebff', '#fff9f0'];
-    sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
-    sparkle.style.boxShadow = `0 0 15px ${sparkle.style.background}`;
-    
+    sparkle.innerHTML = '✨';
+    sparkle.style.cssText = `position:absolute;left:${x}px;top:${y}px;pointer-events:none;z-index:100;font-size:${Math.random()*10+12}px;`;
     document.body.appendChild(sparkle);
-    
-    gsap.to(sparkle, {
-        y: Math.random() * -150 - 50,
-        x: (Math.random() - 0.5) * 150,
-        opacity: 0,
-        scale: 0,
-        duration: 1.5 + Math.random(),
-        onComplete: () => sparkle.remove()
+    gsap.to(sparkle, { y: -100, x: (Math.random()-0.5)*50, opacity: 0, duration: 1.5, onComplete: () => sparkle.remove() });
+}
+
+if (playground) {
+    playground.addEventListener(window.innerWidth < 768 ? 'touchstart' : 'mousemove', (e) => {
+        const x = e.touches ? e.touches[0].pageX : e.pageX;
+        const y = e.touches ? e.touches[0].pageY : e.pageY;
+        if (Math.random() > 0.1) spawnSparkle(x, y);
     });
-});
 
-playground.addEventListener('click', (e) => {
-    // Only transition if not clicking on some specific UI if we add any
-    setTimeout(showNextScene, 500);
-});
+    playground.addEventListener('click', (e) => {
+        if (e.target.closest('.floating-message')) return;
+        playSFX('click');
+        showNextScene();
+    });
+}
 
-// Chat Interaction
-const messagesContainer = document.getElementById('chat-messages');
+// 6. Chat Logic (Typewriter)
+let complimentCount = 0;
+let isProcessing = false;
 const compliments = [
-    "Aku memperhatikan bagaimana kamu selalu berusaha memberikan yang terbaik, meskipun tidak ada yang melihat.",
-    "Ada ketenangan di cara kamu berbicara, sesuatu yang membuat orang lain merasa aman berada di dekatmu.",
-    "Dunia ini beruntung memilikimu. Kamu membawa warna yang mungkin tidak kamu sadari sendiri.",
-    "Aku suka bagaimana pikiranmu bekerja. Kamu melihat keindahan di hal-hal yang sering dilewatkan orang lain.",
-    "Jangan pernah ragu dengan nilaimu. Kamu adalah versi terbaik dari dirimu, dan itu sudah lebih dari cukup.",
-    "Terima kasih sudah bertahan sampai sejauh ini. Kamu jauh lebih kuat dari yang kamu bayangkan.",
-    "Senyummu... itu adalah pengingat bahwa hal-hal baik masih ada di dunia ini."
+    "Makasih ya udah selalu ada sampai sekarang.",
+    "Aku hargai banget caramu tetap berusaha meskipun hari ini capek.",
+    "Senang bisa kenal kamu, beneran.",
+    "Kamu hebat sudah bisa sampai di titik ini.",
+    "Semoga besok hari-harimu jadi lebih baik lagi ya.",
+    "Cuma mau bilang, kamu berharga lebih dari yang kamu pikir.",
+    "Terima kasih sudah jadi versi terbaik dirimu sendiri."
 ];
 
-let lastComplimentIndex = -1;
-let complimentCount = 0;
-const MAX_COMPLIMENTS = 5;
+async function addMessage(text, type = 'received') {
+    if (!messagesContainer) return;
 
-function addMessage(text, type = 'received') {
+    const indicator = document.createElement('div');
+    indicator.className = 'message received typing-indicator';
+    indicator.innerHTML = '<span></span><span></span><span></span>';
+    messagesContainer.appendChild(indicator);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    await new Promise(r => setTimeout(r, Math.min(1200, 600 + text.length * 8)));
+    indicator.remove();
+    
     const msg = document.createElement('div');
     msg.className = `message ${type}`;
-    msg.textContent = text;
     messagesContainer.appendChild(msg);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function startChat() {
-    setTimeout(() => addMessage("Hai..."), 1500);
-    setTimeout(() => addMessage("Aku senang kamu masih di sini."), 3500);
-    setTimeout(() => addMessage("Ada sesuatu yang ingin aku sampaikan padamu..."), 6000);
-    setTimeout(() => sendRandomCompliment(), 8500);
-}
-
-function sendRandomCompliment() {
-    if (complimentCount >= MAX_COMPLIMENTS) {
-        addMessage("Mungkin cukup untuk hari ini... Simpan sisanya agar tetap istimewa. :)");
-        document.getElementById('compliment-btn').disabled = true;
-        setTimeout(showNextScene, 3000);
-        return;
+    
+    for (let i = 0; i < text.length; i++) {
+        msg.textContent += text[i];
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (i % 6 === 0) playSFX('typing');
+        await new Promise(r => setTimeout(r, 20));
     }
-
-    let index;
-    do {
-        index = Math.floor(Math.random() * compliments.length);
-    } while (index === lastComplimentIndex);
-
-    lastComplimentIndex = index;
-    complimentCount++;
-    addMessage(compliments[index]);
 }
 
-document.getElementById('compliment-btn').addEventListener('click', () => {
-    sendRandomCompliment();
-});
+async function startChat() {
+    if (isProcessing) return;
+    isProcessing = true;
+    if (complimentBtn) complimentBtn.disabled = true;
+    messagesContainer.innerHTML = '';
+    
+    await addMessage(`Hai ${userName}...`);
+    await addMessage("Makasih ya masih di sini.");
+    await addMessage("Ada beberapa hal yang sebenernya pengen aku sampein...");
+    
+    if (complimentBtn) complimentBtn.disabled = false;
+    isProcessing = false;
+}
 
-// Secret Interaction Logic
-const magicBox = document.getElementById('magic-box');
-magicBox.addEventListener('click', () => {
-    triggerSecret();
-});
+let complimentPool = [...compliments];
 
-function triggerSecret() {
-    gsap.to(magicBox, {
-        scale: 1.2,
-        rotate: 15,
-        duration: 1,
-        ease: "power2.out",
-        onComplete: () => {
-            magicBox.innerHTML = '<i data-lucide="sun" class="box-icon" style="color: #ffdfd3"></i><p>Terima kasih sudah menjadi cahaya.</p>';
+async function getUniqueCompliment() {
+    if (complimentPool.length === 0) {
+        complimentPool = [...compliments];
+    }
+    const randomIndex = Math.floor(Math.random() * complimentPool.length);
+    const msg = complimentPool.splice(randomIndex, 1)[0];
+    return msg;
+}
+
+if (complimentBtn) {
+    complimentBtn.addEventListener('click', async () => {
+        if (isProcessing) return;
+
+        // If goal reached, move to next scene
+        if (complimentCount >= 5) {
+            playSFX('click');
+            showNextScene();
+            return;
+        }
+
+        isProcessing = true;
+        playSFX('click');
+        
+        const msg = await getUniqueCompliment();
+        await addMessage(msg);
+        complimentCount++;
+        
+        if (complimentCount >= 5) {
+            complimentBtn.innerHTML = '<span>Lanjut?</span> <i data-lucide="arrow-right"></i>';
             lucide.createIcons();
-            setTimeout(showNextScene, 2500);
         }
+        
+        isProcessing = false;
     });
 }
 
-// Finale Pull-up Card Logic
-function initFinalReveal() {
-    const card = document.getElementById('pull-card');
-    const hint = document.querySelector('.pull-hint');
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
-    let isRevealed = false;
-
-    // Pointer events for better touch/mouse support
-    card.addEventListener('pointerdown', startDrag);
-    window.addEventListener('pointermove', drag);
-    window.addEventListener('pointerup', endDrag);
-
-    // Click fallback
-    card.addEventListener('click', () => {
-        if (!isRevealed) {
-            revealCard();
+// 7. Secret Box Logic
+const magicBox = document.getElementById('magic-box');
+const toFinalBtn = document.getElementById('to-final-btn');
+if (magicBox) {
+    magicBox.addEventListener('click', () => {
+        if (toFinalBtn && toFinalBtn.classList.contains('hidden')) {
+            playSFX('magic');
+            gsap.to(magicBox, { scale: 1.05, duration: 0.5, onComplete: () => {
+                magicBox.innerHTML = `<i data-lucide="star" class="box-icon"></i><p class="heading">Makasih udah bertahan.</p>`;
+                lucide.createIcons();
+                toFinalBtn.classList.remove('hidden');
+                gsap.fromTo(toFinalBtn, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.8 });
+            }});
         }
     });
+}
+if (toFinalBtn) { toFinalBtn.addEventListener('click', () => { playSFX('click'); showNextScene(); }); }
 
-    function startDrag(e) {
-        if (isRevealed) return;
-        isDragging = true;
-        startY = e.clientY;
-        card.style.transition = 'none';
-        card.setPointerCapture(e.pointerId);
-    }
-
-    function drag(e) {
-        if (!isDragging || isRevealed) return;
-        const y = e.clientY;
-        const deltaY = y - startY;
-        
-        if (deltaY < 0) {
-            currentY = Math.max(deltaY, -160);
-            card.style.transform = `translateY(${currentY}px)`;
-            
-            if (currentY <= -130) {
-                revealCard();
-                isDragging = false;
-            }
-        }
-    }
-
-    function endDrag() {
-        if (!isDragging || isRevealed) return;
-        isDragging = false;
-        card.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        
-        if (currentY > -130) {
-            card.style.transform = `translateY(0)`;
-        }
+// 8. Final Scene Reveal (Timeline Sequence)
+function initFinalReveal() {
+    const envelope = document.getElementById('envelope-trigger');
+    const flap = document.querySelector('.envelope-top');
+    const card = document.getElementById('pull-card');
+    const cardInner = document.querySelector('.card-inner');
+    const seal = document.querySelector('.envelope-seal');
+    let isRevealed = false;
+    
+    if (envelope) {
+        envelope.addEventListener('click', () => {
+            if (!isRevealed) revealCard();
+        });
     }
 
     function revealCard() {
         isRevealed = true;
-        isDragging = false;
-        card.style.transition = 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        card.style.transform = `translateY(-160px)`;
-        hint.style.opacity = '0';
+        playSFX('reveal');
+        if (envelope) envelope.style.cursor = 'default';
+        
+        const tl = gsap.timeline();
+        // Step 1: Open Flap (Flipping UP and BACK)
+        tl.to(seal, { opacity: 0, scale: 0.5, duration: 0.3 })
+          .to(flap, { rotationX: -170, duration: 0.9, ease: "power2.inOut" }, "-=0.1")
+          
+        // Step 2: Pull Card out (Ensuring high z-index)
+          .to(card, { 
+            y: -170, 
+            duration: 1.4, 
+            ease: "back.out(1.2)",
+            onStart: () => {
+                gsap.set(card, { zIndex: 100 }); // Extremely high z-index
+            }
+          }, "-=0.5")
+          .to(cardInner, { opacity: 1, y: 0, duration: 1 }, "-=0.8")
+          .to(".pull-hint", { opacity: 0, duration: 0.3 }, 0);
+        
         triggerFinalBloom();
+        
+        const lastNote = document.getElementById('one-last-secret');
+        if (lastNote) {
+            lastNote.classList.remove('hidden');
+            gsap.fromTo(lastNote, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 2, delay: 1.5 });
+        }
     }
 }
 
 function triggerFinalBloom() {
-    gsap.to(".bloom", {
-        textShadow: "0 0 30px rgba(255, 133, 161, 0.8)",
-        duration: 2,
-        repeat: -1,
-        yoyo: true
-    });
-    
-    // Heart burst
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 25; i++) {
         setTimeout(() => {
-            const heart = document.createElement('div');
-            heart.className = 'sparkle';
-            heart.innerHTML = '❤️';
-            heart.style.left = (50 + (Math.random() - 0.5) * 40) + '%';
-            heart.style.top = '70%';
-            heart.style.fontSize = (Math.random() * 10 + 15) + 'px';
-            document.body.appendChild(heart);
-            
-            gsap.to(heart, {
-                y: -window.innerHeight,
-                x: (Math.random() - 0.5) * 500,
-                rotate: Math.random() * 360,
-                duration: 2.5 + Math.random() * 2,
-                opacity: 0,
-                onComplete: () => heart.remove()
-            });
-        }, i * 80);
+            const p = document.createElement('div');
+            p.className = 'petal';
+            p.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-20px;width:8px;height:8px;background:#f472b6;border-radius:50%;opacity:0.6;z-index:99;pointer-events:none;`;
+            document.body.appendChild(p);
+            gsap.to(p, { y: '110vh', x: (Math.random()-0.5)*200, rotate: 360, duration: 3+Math.random()*2, onComplete: () => p.remove() });
+        }, i * 120);
     }
 }
 
-// Keyboard Secret (Press 'S' for Smile)
-window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 's') {
-        for (let i = 0; i < 15; i++) {
-            const heart = document.createElement('div');
-            heart.className = 'sparkle';
-            heart.innerHTML = '✨';
-            heart.style.fontSize = '20px';
-            heart.style.left = Math.random() * window.innerWidth + 'px';
-            heart.style.top = window.innerHeight + 'px';
-            document.body.appendChild(heart);
-            
-            gsap.to(heart, {
-                y: -window.innerHeight - 100,
-                x: (Math.random() - 0.5) * 300,
-                rotate: Math.random() * 360,
-                duration: 3 + Math.random() * 2,
-                ease: "power1.out",
-                onComplete: () => heart.remove()
-            });
-        }
-    }
-});
+// 9. Audio System
+const sfxPaths = {
+    click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+    typing: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+    magic: 'https://assets.mixkit.co/active_storage/sfx/2434/2434-preview.mp3',
+    reveal: 'https://assets.mixkit.co/active_storage/sfx/1103/1103-preview.mp3'
+};
 
-// Audio System
-let audio;
-let isMuted = false;
+function playSFX(key) {
+    if (isMuted) return;
+    const sfx = new Audio(sfxPaths[key]);
+    sfx.volume = 0.12;
+    sfx.play().catch(() => {});
+}
 
 function initAudio() {
     if (!audio) {
         audio = new Audio('https://files.freemusicarchive.org/storage-tokyo/music/no_curator/Ketsa/Raising_Frequency/Ketsa_-_04_-_Warm_Greetings.mp3');
         audio.loop = true;
-        audio.volume = 0.2;
-        audio.play().catch(err => console.log("Audio play failed:", err));
+        audio.volume = 0.15;
+        audio.play().catch(() => {});
     }
 }
 
 const muteBtn = document.getElementById('mute-btn');
-const muteIcon = document.getElementById('mute-icon');
-
-muteBtn.addEventListener('click', () => {
-    if (audio) {
-        isMuted = !isMuted;
-        audio.muted = isMuted;
-        muteIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'music');
-        lucide.createIcons();
-    }
-});
-
-// CSS for dynamic sparkles
-const styleElement = document.createElement('style');
-styleElement.textContent = `
-    .sparkle {
-        position: absolute;
-        pointer-events: none;
-        border-radius: 50%;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.5s;
-    }
-`;
-document.head.appendChild(styleElement);
+if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+        if (audio) {
+            isMuted = !isMuted;
+            audio.muted = isMuted;
+            const muteIcon = document.getElementById('mute-icon');
+            if (muteIcon) muteIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'music');
+            lucide.createIcons();
+        }
+    });
+}
