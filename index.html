@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satu Hal Kecil — Untuk Kamu</title>
+    
+    <!-- SEO -->
+    <meta name="description" content="Sebuah ruang kecil untuk tenang dan tersenyum. Dibuat khusus untuk kamu.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <!-- Smooth Scroll Container -->
+    <main data-lenis-prevent>
+        
+        <!-- Opening Scene -->
+        <section id="opening" class="scene">
+            <div class="content">
+                <div class="opening-text">
+                    <p class="reveal-text">Ada satu hal kecil...</p>
+                    <p class="reveal-text">yang ingin aku tunjukkan padamu.</p>
+                </div>
+                <button id="start-btn" class="glass-btn">
+                    <span>Lihat pelan-pelan ya</span>
+                    <i data-lucide="sparkles" class="icon"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Playground Section -->
+        <section id="playground" class="scene hidden">
+            <div class="floating-container">
+                <div class="floating-message" style="--d: 0s">Dunia kadang terlalu bising...</div>
+                <div class="floating-message" style="--d: 2.5s">Tapi di sini, semuanya tenang.</div>
+                <div class="floating-message" style="--d: 5s">Kamu sudah berusaha hebat hari ini.</div>
+            </div>
+            
+            <div class="interaction-hint">
+                <p>Gerakkan jarimu, biarkan cahaya mengikuti...</p>
+                <span class="next-step-hint">(Klik di mana saja untuk lanjut)</span>
+            </div>
+        </section>
+
+        <!-- Chat & Compliment Section -->
+        <section id="chat" class="scene hidden">
+            <div class="chat-container glass">
+                <div class="chat-header">
+                    <div class="status-dot"></div>
+                    <span>Menuliskan sesuatu untukmu...</span>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="chat-input-area">
+                    <button id="compliment-btn" class="glass-btn small">
+                        <span>Lagi?</span>
+                        <i data-lucide="feather" class="icon"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secret Area -->
+        <section id="secret" class="scene hidden">
+            <div class="secret-box glass" id="magic-box">
+                <i data-lucide="moon" class="box-icon"></i>
+                <p>Ketuk perlahan...</p>
+            </div>
+        </section>
+
+        <!-- Final Scene -->
+        <section id="final" class="scene hidden">
+            <div class="content">
+                <h2 class="playfair">Terima kasih sudah mampir.</h2>
+                <p class="caveat">Semoga ini cukup untuk membuat harimu sedikit lebih cerah.</p>
+                
+                <!-- Pull-up Card -->
+                <div class="reveal-container">
+                    <div class="envelope">
+                        <div class="card" id="pull-card">
+                            <div class="card-content">
+                                <h3 class="playfair bloom">I LOVE YOU</h3>
+                                <p class="caveat">Always.</p>
+                            </div>
+                        </div>
+                        <div class="envelope-front">
+                            <div class="pull-hint">
+                                <i data-lucide="chevron-up"></i>
+                                <span>Klik atau Tarik Kartunya ke Atas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-heart">
+                    <i data-lucide="heart" fill="currentColor"></i>
+                </div>
+                <p class="footer-note">Kamu berharga, lebih dari yang kamu tahu.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Audio Control -->
+    <div class="audio-control glass">
+        <button id="mute-btn" aria-label="Toggle Mute">
+            <i data-lucide="music" id="mute-icon"></i>
+        </button>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
