@@ -21,16 +21,19 @@
 </head>
 <body>
     <div id="particles-js"></div>
+    <div id="heart-container"></div>
     
-    <!-- 1. Name Input Overlay -->
+    <!-- 1. Start Overlay -->
     <div id="name-overlay" class="overlay">
-        <div class="glass name-card">
-            <h2 class="heading">Hai...</h2>
-            <p>Boleh aku tahu siapa namamu?</p>
-            <input type="text" id="user-name-input" placeholder="Nama panggilanamu..." maxlength="15" autocomplete="off">
-            <button id="submit-name" class="btn-primary" style="justify-content: center; width: 100%;">
-                <span>Mulai Sekarang</span>
-                <i data-lucide="arrow-right"></i>
+        <div class="glass name-card" style="text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <i data-lucide="heart" fill="var(--romantic-pink)" color="var(--romantic-pink)" style="width: 80px; height: 80px; animation: pulse-glow 2s infinite; border-radius: 50%;"></i>
+            </div>
+            <h2 class="heading">Hai, <span class="romantic-pink">Ica Sayang</span>...</h2>
+            <p style="margin-top: 1rem; opacity: 0.8; font-size: 1.1rem;">Ada sesuatu yang spesial buat kamu.</p>
+            <button id="submit-name" class="btn-primary" style="justify-content: center; width: 100%; margin-top: 2rem;">
+                <span>Buka Sekarang</span>
+                <i data-lucide="heart"></i>
             </button>
         </div>
     </div>
@@ -59,7 +62,7 @@
             </div>
             
             <div class="interaction-hint">
-                <p class="caveat" style="font-size: 1.5rem;">Gerakkan jarimu, biarkan cahaya mengikuti...</p>
+                <p class="caveat" style="font-size: 1.5rem;">Sentuh layarnya, biarkan cintaku mengikuti jarimu...</p>
                 <span class="next-step-hint">(Klik di mana saja untuk lanjut)</span>
             </div>
         </section>
@@ -112,9 +115,9 @@
                         
                         <!-- Secret Card -->
                         <div class="card glass" id="pull-card">
-                            <div class="card-inner">
-                                <h3 class="heading bloom">I LOVE YOU</h3>
-                                <p class="caveat" style="color: white; opacity: 0.8; font-size: 1.3rem;">Always.</p>
+                            <div class="card-inner" style="text-align: center;">
+                                <h3 class="heading bloom" style="font-size: 2rem; margin-bottom: 0.5rem;">I LOVE YOU</h3>
+                                <p class="caveat" style="color: white; opacity: 0.9; font-size: 1.5rem;">Alysa (Ica) ❤️</p>
                             </div>
                         </div>
                         

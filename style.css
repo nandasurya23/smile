@@ -1,12 +1,12 @@
 :root {
     /* Design Tokens - Colors */
-    --bg-deep: #05070a;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-glow: #38bdf8;
-    --romantic-pink: #f472b6;
-    --glass: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --bg-deep: #1a0f14;
+    --text-primary: #fff0f5;
+    --text-secondary: #fbcfe8;
+    --accent-glow: #f472b6;
+    --romantic-pink: #fb7185;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.15);
     
     /* Design Tokens - Spacing */
     --p-scene: clamp(1.5rem, 5vw, 4rem);
@@ -32,10 +32,17 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-deep);
+    background-image: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.05) 0%, transparent 60%);
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
     transition: background-color 2s ease;
+    animation: breathe 8s infinite alternate ease-in-out;
+}
+
+@keyframes breathe {
+    0% { background-size: 100% 100%; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); }
+    100% { background-size: 120% 120%; box-shadow: inset 0 0 100px rgba(244, 114, 182, 0.1); }
 }
 
 h1, h2, h3, .heading {
@@ -321,7 +328,7 @@ h1, h2, h3, .heading {
 .envelope-back {
     position: absolute;
     inset: 0;
-    background: #0f172a;
+    background: #2d1522;
     border-radius: 12px;
     z-index: 1;
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -352,7 +359,7 @@ h1, h2, h3, .heading {
 .envelope-bottom {
     position: absolute;
     inset: 0;
-    background: #1e293b;
+    background: #4f2238;
     border-radius: 12px;
     z-index: 4;
     display: flex;
@@ -377,7 +384,7 @@ h1, h2, h3, .heading {
 .flap-shape {
     width: 100%;
     height: 55%;
-    background: #1e293b;
+    background: #4f2238;
     clip-path: polygon(0 0, 100% 0, 50% 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -466,4 +473,46 @@ h1, h2, h3, .heading {
     align-items: center;
     justify-content: center;
     z-index: 100;
+}
+
+/* --- EXTREME ROMANTIC ADDITIONS --- */
+.falling-heart {
+    position: fixed;
+    top: -10vh;
+    font-size: 1.5rem;
+    animation: fall linear forwards;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.8));
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.trail-heart {
+    position: absolute;
+    pointer-events: none;
+    font-size: 1.2rem;
+    animation: fade-up 1s ease-out forwards;
+    z-index: 9999;
+    filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.8));
+}
+
+@keyframes fade-up {
+    0% { transform: scale(1) translateY(0); opacity: 1; }
+    100% { transform: scale(0.5) translateY(-50px); opacity: 0; }
+}
+
+.card-inner p.sweet-letter {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: center;
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.9);
 }
